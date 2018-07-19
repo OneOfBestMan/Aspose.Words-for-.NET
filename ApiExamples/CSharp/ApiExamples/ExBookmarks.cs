@@ -177,7 +177,7 @@ namespace ApiExamples
             doc.Save(MyDir + @"\Artifacts\Bookmarks.CreateBookmarkWithNodes.doc");
             //ExEnd
 
-            Assert.AreEqual(doc.Range.Bookmarks["My bookmark"].Text, "Text inside bookmark. ");
+            Assert.AreEqual("Text inside bookmark. ", doc.Range.Bookmarks["My bookmark"].Text);
         }
 
         [Test]

@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using Aspose.Words;
 using Aspose.Words.Drawing;
 using Aspose.Words.Drawing.Charts;
@@ -25,8 +26,6 @@ namespace ApiExamples
     [TestFixture]
     public class ExDocumentBuilder : ApiExampleBase
     {
-        private readonly String mImage = ImageDir + "Test_636_852.gif";
-
         [Test]
         public void WriteAndFont()
         {
@@ -1020,7 +1019,7 @@ namespace ApiExamples
             // Verify that the cell count of the table is four.
             Table table = (Table)doc.GetChild(NodeType.Table, 0, true);
             Assert.IsNotNull(table);
-            Assert.AreEqual(table.GetChildNodes(NodeType.Cell, true).Count, 4);
+            Assert.AreEqual(4, table.GetChildNodes(NodeType.Cell, true).Count);
         }
 
         [Test]
@@ -2164,7 +2163,6 @@ namespace ApiExamples
 
             private readonly ArrayList mNumberFormatInvocations = new ArrayList();
             private readonly ArrayList mDateFormatInvocations = new ArrayList();
-            private IFieldResultFormatter mfieldResultFormatterImplementation;
         }
         //ExEnd
 
@@ -2212,25 +2210,28 @@ namespace ApiExamples
             builder.InsertBreak(BreakType.PageBreak);
 
             // We can get an image to use as a custom thumbnail
-            System.Net.WebClient webClient = new System.Net.WebClient();
-            byte[] imageBytes = webClient.DownloadData("http://www.aspose.com/images/aspose-logo.gif");
-
-            using (MemoryStream stream = new MemoryStream(imageBytes))
+            using (WebClient webClient = new WebClient())
             {
-                Image image = Image.FromStream(stream);
+                byte[] imageBytes = webClient.DownloadData("http://www.aspose.com/images/aspose-logo.gif");
 
-                // This puts the video where we are with our document builder, with a custom thumbnail and size depending on the size of the image
-                builder.Writeln("Custom thumbnail at document builder's cursor:");
-                builder.InsertOnlineVideo(vimeoVideoUrl, vimeoEmbedCode, imageBytes, image.Width, image.Height);
-                builder.InsertBreak(BreakType.PageBreak);
-                
-                // We can put the video at the bottom right edge of the page too, but we'll have to take the page margins into account 
-                double left = builder.PageSetup.RightMargin - image.Width;
-                double top = builder.PageSetup.BottomMargin - image.Height;
+                using (MemoryStream stream = new MemoryStream(imageBytes))
+                {
+                    using (Image image = Image.FromStream(stream))
+                    {
+                        // This puts the video where we are with our document builder, with a custom thumbnail and size depending on the size of the image
+                        builder.Writeln("Custom thumbnail at document builder's cursor:");
+                        builder.InsertOnlineVideo(vimeoVideoUrl, vimeoEmbedCode, imageBytes, image.Width, image.Height);
+                        builder.InsertBreak(BreakType.PageBreak);
 
-                // Here we use a custom thumbnail and relative positioning to put it and the bottom right of tha page
-                builder.Writeln("Bottom right of page with custom thumbnail:");
-                builder.InsertOnlineVideo(vimeoVideoUrl, vimeoEmbedCode, imageBytes, RelativeHorizontalPosition.RightMargin, left, RelativeVerticalPosition.BottomMargin, top, image.Width, image.Height, WrapType.Square);
+                        // We can put the video at the bottom right edge of the page too, but we'll have to take the page margins into account 
+                        double left = builder.PageSetup.RightMargin - image.Width;
+                        double top = builder.PageSetup.BottomMargin - image.Height;
+
+                        // Here we use a custom thumbnail and relative positioning to put it and the bottom right of tha page
+                        builder.Writeln("Bottom right of page with custom thumbnail:");
+                        builder.InsertOnlineVideo(vimeoVideoUrl, vimeoEmbedCode, imageBytes, RelativeHorizontalPosition.RightMargin, left, RelativeVerticalPosition.BottomMargin, top, image.Width, image.Height, WrapType.Square);
+                    }
+                }
             }
 
             doc.Save(MyDir + @"\Artifacts\DocumentBuilder.InsertOnlineVideo.docx");
@@ -2316,7 +2317,7 @@ namespace ApiExamples
             DocumentBuilder builder = new DocumentBuilder(doc);
 
             // Let's take a spreadsheet from our system and insert it into the document
-            System.IO.Stream spreadsheetStream = File.Open(MyDir + "DocumentBuilder.InsertOleObject.xlsx", FileMode.Open);
+            Stream spreadsheetStream = File.Open(MyDir + "DocumentBuilder.InsertOleObject.xlsx", FileMode.Open);
 
             // The spreadsheet can be activated by double clicking the panel that you'll see in the document immediately under the text we will add
             // We did not set the area to double click as an icon nor did we change its appearance so it looks like a simple panel
@@ -2325,30 +2326,34 @@ namespace ApiExamples
 
             // A powerpoint presentation is another type of object we can embed in our document
             // This time we'll also exercise some control over how it looks 
-            System.IO.Stream powerpointStream = File.Open(MyDir + "DocumentBuilder.InsertOleObject.pptx", FileMode.Open);
+            Stream powerpointStream = File.Open(MyDir + "DocumentBuilder.InsertOleObject.pptx", FileMode.Open);
 
             // If we insert the Ole object as an icon, we are still provided with a default icon
             // If that is not suitable, we can make the icon to look like any image
-            System.Net.WebClient webClient = new System.Net.WebClient();
-            byte[] imgBytes = webClient.DownloadData("http://www.aspose.com/images/aspose-logo.gif");
+            using (WebClient webClient = new WebClient())
+            {
+                byte[] imgBytes = webClient.DownloadData("http://www.aspose.com/images/aspose-logo.gif");
 
 #if NETSTANDARD2_0 || __MOBILE__
-            SkiaSharp.SKBitmap bitmap = SkiaSharp.SKBitmap.Decode(imgBytes);
+                SkiaSharp.SKBitmap bitmap = SkiaSharp.SKBitmap.Decode(imgBytes);
 
-            builder.InsertParagraph();
-            builder.Writeln("Powerpoint Ole object:");
-            builder.InsertOleObject(powerpointStream, "MyOleObject.pptx", true, bitmap);
-#else
-            using (MemoryStream stream = new MemoryStream(imgBytes))
-            {
-                Image image = Image.FromStream(stream);
-
-                // If we double click the image, the powerpoint presentation will open
                 builder.InsertParagraph();
                 builder.Writeln("Powerpoint Ole object:");
-                builder.InsertOleObject(powerpointStream, "MyOleObject.pptx", true, image);
+                builder.InsertOleObject(powerpointStream, "MyOleObject.pptx", true, bitmap);
+#else
+                using (MemoryStream stream = new MemoryStream(imgBytes))
+                {
+                    using (Image image = Image.FromStream(stream))
+                    {
+                        // If we double click the image, the powerpoint presentation will open
+                        builder.InsertParagraph();
+                        builder.Writeln("Powerpoint Ole object:");
+                        builder.InsertOleObject(powerpointStream, "MyOleObject.pptx", true, image);
+                    }
+                }
+#endif 
             }
-#endif
+
             powerpointStream.Close();
             spreadsheetStream.Close();
 

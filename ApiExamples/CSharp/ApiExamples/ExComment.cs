@@ -132,7 +132,7 @@ namespace ApiExamples
 
             foreach (Comment childComment in comment.Replies)
             {
-                if (childComment.Done == false)
+                if (!childComment.Done)
                 {
                     // Update comment reply Done mark.
                     childComment.Done = true;

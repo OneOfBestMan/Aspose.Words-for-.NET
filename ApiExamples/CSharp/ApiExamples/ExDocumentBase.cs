@@ -1,4 +1,5 @@
-﻿using Aspose.Words;
+﻿using System.Net;
+using Aspose.Words;
 using Aspose.Words.BuildingBlocks;
 using Aspose.Words.Drawing;
 using Aspose.Words.Loading;
@@ -179,19 +180,23 @@ namespace ApiExamples
                     // We can still process those inputs and find an image any way we like, as long as an image byte array is passed to args.SetData()
                     if (args.OriginalUri == "Google Logo")
                     {
-                        System.Net.WebClient webClient = new System.Net.WebClient();
-                        byte[] imageBytes = webClient.DownloadData("http://www.google.com/images/logos/ps_logo2.png");
-                        args.SetData(imageBytes);
-                        // We need this return statement any time a resource is loaded in a custom manner
-                        return ResourceLoadingAction.UserProvided;
+                        using (WebClient webClient = new WebClient())
+                        {
+                            byte[] imageBytes = webClient.DownloadData("http://www.google.com/images/logos/ps_logo2.png");
+                            args.SetData(imageBytes);
+                            // We need this return statement any time a resource is loaded in a custom manner
+                            return ResourceLoadingAction.UserProvided;
+                        }
                     }
 
                     if (args.OriginalUri == "Aspose Logo")
                     {
-                        System.Net.WebClient webClient = new System.Net.WebClient();
-                        byte[] imageBytes = webClient.DownloadData("https://www.aspose.com/Images/aspose-logo.jpg");
-                        args.SetData(imageBytes);
-                        return ResourceLoadingAction.UserProvided;
+                        using (WebClient webClient = new WebClient())
+                        {
+                            byte[] imageBytes = webClient.DownloadData("https://www.aspose.com/Images/aspose-logo.jpg");
+                            args.SetData(imageBytes);
+                            return ResourceLoadingAction.UserProvided;
+                        }
                     }
 
                     // We can find and add an image any way we like, as long as args.SetData() is called with some image byte array as a parameter

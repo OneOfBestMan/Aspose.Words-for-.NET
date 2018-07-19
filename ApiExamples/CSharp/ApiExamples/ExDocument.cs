@@ -199,21 +199,23 @@ namespace ApiExamples
             // The easiest way to load our document from the internet is make use of the 
             // System.Net.WebClient class. Create an instance of it and pass the URL
             // to download from.
-            WebClient webClient = new WebClient();
+            using (WebClient webClient = new WebClient())
+            {
+                // Download the bytes from the location referenced by the URL.
+                byte[] dataBytes = webClient.DownloadData(url);
 
-            // Download the bytes from the location referenced by the URL.
-            byte[] dataBytes = webClient.DownloadData(url);
+                // Wrap the bytes representing the document in memory into a MemoryStream object.
+                using (MemoryStream byteStream = new MemoryStream(dataBytes))
+                {
+                    // Load this memory stream into a new Aspose.Words Document.
+                    // The file format of the passed data is inferred from the content of the bytes itself. 
+                    // You can load any document format supported by Aspose.Words in the same way.
+                    Document doc = new Document(byteStream);
 
-            // Wrap the bytes representing the document in memory into a MemoryStream object.
-            MemoryStream byteStream = new MemoryStream(dataBytes);
-
-            // Load this memory stream into a new Aspose.Words Document.
-            // The file format of the passed data is inferred from the content of the bytes itself. 
-            // You can load any document format supported by Aspose.Words in the same way.
-            Document doc = new Document(byteStream);
-
-            // Convert the document to any format supported by Aspose.Words.
-            doc.Save(MyDir + @"\Artifacts\Document.OpenFromWeb.docx");
+                    // Convert the document to any format supported by Aspose.Words.
+                    doc.Save(MyDir + @"\Artifacts\Document.OpenFromWeb.docx");
+                }
+            }
             //ExEnd
         }
 
@@ -534,11 +536,11 @@ namespace ApiExamples
 
         public class HandleImageSaving : IImageSavingCallback
         {
-            void IImageSavingCallback.ImageSaving(ImageSavingArgs e)
+            void IImageSavingCallback.ImageSaving(ImageSavingArgs args)
             {
                 // Change any images in the document being exported with the extension of "jpeg" to "jpg".
-                if (e.ImageFileName.EndsWith(".jpeg"))
-                    e.ImageFileName = e.ImageFileName.Replace(".jpeg", ".jpg");
+                if (args.ImageFileName.EndsWith(".jpeg"))
+                    args.ImageFileName = args.ImageFileName.Replace(".jpeg", ".jpg");
             }
         }
         //ExEnd
@@ -1505,6 +1507,27 @@ namespace ApiExamples
         }
 
         [Test]
+        public void RevisionHistory()
+        {
+            Document doc = new Document(MyDir + "Document.docx");
+
+            doc.StartTrackRevisions("VDeryushev");
+
+            ParagraphCollection paragraphs = doc.FirstSection.Body.Paragraphs;
+            paragraphs[0].Remove();
+
+            doc.StopTrackRevisions();
+
+            for (int i = 0; i < paragraphs.Count; i++)
+            {
+                if (paragraphs[i].IsMoveFromRevision)
+                    Console.WriteLine("The paragraph {0} has been moved (deleted).", i);
+                if (paragraphs[i].IsMoveToRevision)
+                    Console.WriteLine("The paragraph {0} has been moved (inserted).", i);
+            }
+}
+
+        [Test]
         public void UpdateThumbnail()
         {
             //ExStart
@@ -2295,6 +2318,38 @@ namespace ApiExamples
             // We will still need the password if we want to open this one with Word
             docProtected.Save(MyDir + @"\Artifacts\Document.WriteProtectionEditedAfter.docx");
             //ExEnd
+        }
+
+
+        //ToDo: The language does not set!
+        [Test]
+        public void AddEditingLanguage()
+        {
+            LoadOptions loadOptions = new LoadOptions();
+            loadOptions.LanguagePreferences.AddEditingLanguage(EditingLanguage.Japanese);
+
+            Document doc = new Document(MyDir + "Document.docx", loadOptions);
+
+            int localeIdFarEast = doc.Styles.DefaultFont.LocaleIdFarEast;
+            if (localeIdFarEast == (int)EditingLanguage.Japanese)
+                Console.WriteLine("The document either has no any FarEast language set in defaults or it was set to Japanese originally.");
+            else
+                Console.WriteLine("The document default FarEast language was set to another than Japanese language originally, so it is not overridden.");
+        }
+
+        [Test]
+        public void SetEditingLanguageAsDefault()
+        {
+            LoadOptions loadOptions = new LoadOptions();
+            loadOptions.LanguagePreferences.SetAsDefault(EditingLanguage.Russian);
+
+            Document doc = new Document(MyDir + "Document.docx", loadOptions);
+
+            int localeId = doc.Styles.DefaultFont.LocaleId;
+            if (localeId == (int)EditingLanguage.Russian)
+                Console.WriteLine("The document either has no any language set in defaults or it was set to Russian originally.");
+            else
+                Console.WriteLine("The document default language was set to another than Russian language originally, so it is not overridden.");
         }
     }
 }

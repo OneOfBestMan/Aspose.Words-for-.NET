@@ -103,7 +103,6 @@ namespace ApiExamples
             //ExEnd
         }
 
-        [Ignore("WORDSNET-16234")]
         [Test]
         public void DefaulValuesEmbeddedFontsParametrs()
         {
