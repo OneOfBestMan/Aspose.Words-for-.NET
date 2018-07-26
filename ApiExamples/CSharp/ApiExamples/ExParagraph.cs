@@ -249,7 +249,7 @@ namespace ApiExamples
             format.WordWrap = false;
             format.HangingPunctuation = true;
 
-            doc.Save(MyDir + @"\Artifacts\AsianTypographyProperties.docx");
+            doc.Save(MyDir + @"\Artifacts\Paragraph.AsianTypographyProperties.docx");
             //ExEnd
         }
 
