@@ -1509,14 +1509,12 @@ namespace ApiExamples
         [Test]
         public void RevisionHistory()
         {
-            Document doc = new Document(MyDir + "Document.docx");
-
-            doc.StartTrackRevisions("VDeryushev");
-
+            //ExStart
+            //ExFor:Paragraph.IsMoveFromRevision
+            //ExFor:Paragraph.IsMoveToRevision
+            //ExSummary:Shows how to get paragraph that was moved (deleted/inserted) in Microsoft Word while change tracking was enabled.
+            Document doc = new Document(MyDir + "MoveFromRevision.docx");
             ParagraphCollection paragraphs = doc.FirstSection.Body.Paragraphs;
-            paragraphs[0].Remove();
-
-            doc.StopTrackRevisions();
 
             for (int i = 0; i < paragraphs.Count; i++)
             {
@@ -1525,7 +1523,8 @@ namespace ApiExamples
                 if (paragraphs[i].IsMoveToRevision)
                     Console.WriteLine("The paragraph {0} has been moved (inserted).", i);
             }
-}
+            //ExEnd
+        }
 
         [Test]
         public void UpdateThumbnail()
@@ -2327,7 +2326,7 @@ namespace ApiExamples
         {
             LoadOptions loadOptions = new LoadOptions();
             loadOptions.LanguagePreferences.AddEditingLanguage(EditingLanguage.Japanese);
-
+            
             Document doc = new Document(MyDir + "Document.docx", loadOptions);
 
             int localeIdFarEast = doc.Styles.DefaultFont.LocaleIdFarEast;
