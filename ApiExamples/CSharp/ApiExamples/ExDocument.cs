@@ -2318,37 +2318,44 @@ namespace ApiExamples
             docProtected.Save(MyDir + @"\Artifacts\Document.WriteProtectionEditedAfter.docx");
             //ExEnd
         }
-
-
-        //ToDo: The language does not set!
+        
         [Test]
         public void AddEditingLanguage()
         {
+            //ExStart
+            //ExFor:LanguagePreferences.AddEditingLanguage(EditingLanguage)
+            //ExSummary:Shows how to set up language preferences that will be used when document is loading
             LoadOptions loadOptions = new LoadOptions();
             loadOptions.LanguagePreferences.AddEditingLanguage(EditingLanguage.Japanese);
             
-            Document doc = new Document(MyDir + "Document.docx", loadOptions);
+            Document doc = new Document(MyDir + "Document.EditingLanguage.docx", loadOptions);
 
             int localeIdFarEast = doc.Styles.DefaultFont.LocaleIdFarEast;
             if (localeIdFarEast == (int)EditingLanguage.Japanese)
                 Console.WriteLine("The document either has no any FarEast language set in defaults or it was set to Japanese originally.");
             else
                 Console.WriteLine("The document default FarEast language was set to another than Japanese language originally, so it is not overridden.");
+            //ExEnd
         }
 
         [Test]
         public void SetEditingLanguageAsDefault()
         {
+            //ExStart
+            //ExFor:LanguagePreferences.SetAsDefault(EditingLanguage)
+            //ExSummary:Shows how to set language as default
             LoadOptions loadOptions = new LoadOptions();
-            loadOptions.LanguagePreferences.SetAsDefault(EditingLanguage.Russian);
+            // You can set language which only
+            loadOptions.LanguagePreferences.DefaultEditingLanguage = EditingLanguage.Russian;
 
-            Document doc = new Document(MyDir + "Document.docx", loadOptions);
+            Document doc = new Document(MyDir + "Document.EditingLanguage.docx", loadOptions);
 
             int localeId = doc.Styles.DefaultFont.LocaleId;
             if (localeId == (int)EditingLanguage.Russian)
                 Console.WriteLine("The document either has no any language set in defaults or it was set to Russian originally.");
             else
                 Console.WriteLine("The document default language was set to another than Russian language originally, so it is not overridden.");
+            //ExEnd
         }
     }
 }
